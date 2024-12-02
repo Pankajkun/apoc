@@ -1,0 +1,38 @@
+name: Build APOC
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3  # latest version
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3  # latest version
+        with:
+          java-version: '8'
+          distribution: 'temurin' 
+
+      - name: Extract the ZIP file
+        run: unzip apoc-5.12.0.zip -d apoc-source  # Extracting the ZIP into a folder
+
+      - name: List contents of apoc-source directory
+        run: ls -la apoc-source  # step to list contents so I can debug
+
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x apoc-source/apoc-5.12.0/gradlew  # making sure that the Gradle wrapper is executable
+
+      - name: Build with Gradle
+        run: cd apoc-source/apoc-5.12.0 && ./gradlew build  # Runnig the Gradle build
+
+      - name: Upload APOC JAR as artifact
+        uses: actions/upload-artifact@v3  # the latest version
+        with:
+          name: apoc-jar
+          path: apoc-source/apoc-5.12.0/build/libs/*.jar  # Path to the generated JAR file
